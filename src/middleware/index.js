@@ -1,6 +1,4 @@
-module.exports = {
-  AuthMiddleware: require("./auth-middleware"),
-};
+module.exports = {};
 
 // new technique:- exporting all the middlewares files from index.js
 

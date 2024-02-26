@@ -21,16 +21,7 @@ function createToken(input) {
   }
 }
 
-function verifyToken(token) {
-  try {
-    return jwt.verify(token, ServerConfig.JWT_SECRET_KEY);
-  } catch (error) {
-    throw error;
-  }
-}
-
 module.exports = {
   checkPassword,
   createToken,
-  verifyToken,
 };

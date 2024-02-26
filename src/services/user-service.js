@@ -47,31 +47,7 @@ async function signIn(data) {
   }
 }
 
-async function isAuthenticated(token) {
-  try {
-    if (!token) {
-      throw new AppError("Missing JWT Token", StatusCodes.BAD_REQUEST);
-    }
-
-    const response = Auth.verifyToken(token);
-    const user = await userRepository.get(response.id);
-    if (!user) {
-      return new AppError("User not Found", StatusCodes.NOT_FOUND);
-    }
-    return user.id;
-  } catch (error) {
-    if (error.name == "JsonWebTokenError") {
-      throw new AppError("Invalid Json Web Token", StatusCodes.BAD_REQUEST);
-    } else if (error.name == "TokenExpiredError") {
-      throw new AppError("JWT Token Expired", StatusCodes.BAD_REQUEST);
-    } else {
-      handleError(error);
-    }
-  }
-}
-
 module.exports = {
   createUser,
   signIn,
-  isAuthenticated,
 };
