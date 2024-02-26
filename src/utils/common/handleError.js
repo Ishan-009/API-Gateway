@@ -24,7 +24,7 @@ function handleError(error) {
     );
   } else {
     throw new AppError(
-      "An unexpected error occurred.",
+      "Something went wrong.",
       StatusCodes.INTERNAL_SERVER_ERROR
     );
   }
