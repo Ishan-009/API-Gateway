@@ -1,4 +1,6 @@
-module.exports = {};
+module.exports = {
+  UserService: require("./user-service"),
+};
 
 // new technique:- exporting all the services files from index.js
 
