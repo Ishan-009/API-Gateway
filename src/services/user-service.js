@@ -1,5 +1,5 @@
 const { StatusCodes } = require("http-status-codes");
-const { UserRepository } = require("../repositories/index");
+const { UserRepository, RoleRepository } = require("../repositories/index");
 const {
   ErrorResponse,
   SuccessResponse,
@@ -9,11 +9,21 @@ const bcrypt = require("bcrypt");
 const AppError = require("../utils/errors/app-error");
 const userRepository = new UserRepository();
 const { Auth } = require("../utils/common");
+const { Enums } = require("../utils/common/index");
+const { USER_ROLE_ENUMS } = Enums;
+const { ADMIN, CUSTOMER, FLIGHT_COMPANY } = USER_ROLE_ENUMS;
+const roleRepository = new RoleRepository();
 async function createUser(data) {
   try {
     const user = await userRepository.create(data);
+    console.log("user", user);
+    const role = await roleRepository.getRoleByName(CUSTOMER);
+    console.log("role", role);
+    const response = await user.addRole(role); // Use addRoles instead of addRole
+    console.log(response);
     return user;
   } catch (error) {
+    console.log(error);
     handleError(error);
   }
 }
@@ -70,8 +80,75 @@ async function isAuthenticated(token) {
   }
 }
 
+async function addRoleToUser(data) {
+  try {
+    const user = await userRepository.get(data.userId);
+    if (!user) {
+      throw new AppError(
+        "No user found for the given result",
+        StatusCodes.NOT_FOUND
+      );
+    }
+    const role = await roleRepository.getRoleByName(data.role);
+    if (!role) {
+      throw new AppError(
+        "No role found for the given result",
+        StatusCodes.NOT_FOUND
+      );
+    }
+    user.addRole(role);
+    return user;
+  } catch (error) {
+    if (error.name == "JsonWebTokenError") {
+      throw new AppError("Invalid Json Web Token", StatusCodes.BAD_REQUEST);
+    } else if (error.name == "TokenExpiredError") {
+      throw new AppError("JWT Token Expired", StatusCodes.BAD_REQUEST);
+    } else {
+      handleError(error);
+    }
+  }
+}
+
+async function isAdmin(id) {
+  try {
+    const user = await userRepository.get(id);
+    if (!user) {
+      throw new AppError(
+        "No user found for the given result",
+        StatusCodes.NOT_FOUND
+      );
+    }
+    const adminRole = await roleRepository.getRoleByName(
+      Enums.USER_ROLE_ENUMS.ADMIN
+    );
+    if (!adminRole) {
+      throw new AppError(
+        "No role found for the given result",
+        StatusCodes.NOT_FOUND
+      );
+    }
+    return user.hasRole(adminRole);
+  } catch (error) {
+    console.log(error);
+    if (error instanceof AppError) {
+      throw error;
+    } else if (error.name == "JsonWebTokenError") {
+      throw new AppError("Invalid Json Web Token", StatusCodes.BAD_REQUEST);
+    } else if (error.name == "TokenExpiredError") {
+      throw new AppError("JWT Token Expired", StatusCodes.BAD_REQUEST);
+    } else {
+      throw new AppError(
+        "Something wrong occured",
+        StatusCodes.INTERNAL_SERVER_ERROR
+      );
+    }
+  }
+}
+
 module.exports = {
   createUser,
   signIn,
   isAuthenticated,
+  addRoleToUser,
+  isAdmin,
 };

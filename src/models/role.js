@@ -1,7 +1,8 @@
 "use strict";
 const { Model } = require("sequelize");
-const { USER_ROLE_ENUMS } = require("../utils/common/enums");
-const { ADMIN, CUSTOMER, FLIGHT_COMPANY } = USER_ROLE_ENUMS;
+
+const { Enums } = require("../utils/common");
+const { ADMIN, CUSTOMER, FLIGHT_COMPANY } = Enums.USER_ROLE_ENUMS;
 module.exports = (sequelize, DataTypes) => {
   class Role extends Model {
     /**
@@ -11,7 +12,7 @@ module.exports = (sequelize, DataTypes) => {
      */
     static associate(models) {
       // define association here
-      this.belongsToMany(models.User, { through: "User_Roles", as: "user" });
+      this.belongsToMany(models.User, { through: "User_Role", as: "user" });
     }
   }
   Role.init(

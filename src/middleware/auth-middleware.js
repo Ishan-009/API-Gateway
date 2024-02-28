@@ -64,8 +64,40 @@ async function checkAuth(req, res, next) {
   }
 }
 
+async function isAdmin(req, res, next) {
+  try {
+    // getting req.user form previous middleware :- auth check middleware
+    const response = await UserService.isAdmin(req.user);
+    console.log("isAdmin", response);
+    if (!response) {
+      return res
+        .status(StatusCodes.UNAUTHORIZED)
+        .json({ message: "User unauthorized to take this action" });
+    }
+    next();
+  } catch (error) {
+    console.log("middleware catch", error);
+
+    if (error.name == "TokenExpiredError") {
+      ErrorResponse.error = error;
+      return res.status(error.statusCode).json(ErrorResponse);
+    }
+    if (error instanceof AppError) {
+      ErrorResponse.error = error;
+      return res.status(error.statusCode).json(ErrorResponse);
+    }
+    res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
+      error: {
+        statusCode: StatusCodes.INTERNAL_SERVER_ERROR,
+        message: "Something Wrong Occurred",
+      },
+    });
+  }
+}
+
 module.exports = {
   validateUserSignup,
   validateUserSignin,
   checkAuth,
+  isAdmin,
 };

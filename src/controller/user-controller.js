@@ -42,7 +42,25 @@ async function signIn(req, res) {
   }
 }
 
+async function addRoleToUser(req, res) {
+  try {
+    console.log("controller", req.body);
+    const response = await UserService.addRoleToUser({
+      userId: req.body.userId,
+      role: req.body.role,
+    });
+    SuccessResponse.message = "User Role Added successfully";
+    SuccessResponse.data = response;
+    return res.status(StatusCodes.OK).json(SuccessResponse);
+  } catch (error) {
+    const errorResponse = serializeErrorObject(error);
+    ErrorResponse.error = errorResponse;
+    return res.status(error.statusCode).json(ErrorResponse);
+  }
+}
+
 module.exports = {
   createUser,
   signIn,
+  addRoleToUser,
 };

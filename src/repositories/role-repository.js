@@ -1,15 +1,15 @@
 const CrudRepository = require("./crud-repository");
-const { User } = require("../models");
+const { Role } = require("../models");
 
-class UserRepository extends CrudRepository {
+class RoleRepository extends CrudRepository {
   constructor() {
-    super(User);
+    super(Role);
   }
 
-  async getUserByEmail(email) {
+  async getRoleByName(name) {
     try {
-      const user = await User.findOne({ where: { email: email } });
-      return user;
+      const role = await Role.findOne({ where: { name: name } });
+      return role;
     } catch (error) {
       // Log the error for debugging
       console.error(`Error in UserRepository getUserByEmail: ${error.message}`);
@@ -21,4 +21,4 @@ class UserRepository extends CrudRepository {
   }
 }
 
-module.exports = UserRepository;
+module.exports = RoleRepository;
